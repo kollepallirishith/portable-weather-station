@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        nav {
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        nav ul li {
+            margin: 0 15px;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: #fff;
+            font-size: 1.2em;
+            font-weight: 300;
+        }
+        nav ul li a:hover {
+            color: #00e5ff;
+        }
+        .about-btn {
+            background-color: #00e5ff;
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 700;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .about-btn:hover {
+            background-color: #0088cc;
+            transform: scale(1.05);
+        }
+        .container {
+            padding: 20px;
+            text-align: center;
+        }
+        #altitude-speedometer {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(#00e5ff 0%, #00e5ff var(--percentage), #222 var(--percentage), #222 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+        }
+        
+        #altitude-speedometer::after {
+            content: '';
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            background: #000;
+            border-radius: 50%;
+        }
+        
+        #altitude-speedometer p {
+            position: relative;
+            font-size: 1.5em;
+            color: #00e5ff;
+            z-index: 1;
+        }
+        
+        .data-head {
+            font-size: 2em;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #00e5ff;
+        }
+        
+        .data-container {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .data-item {
+            background: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .data-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 229, 255, 1);
+        }
+        
+        .data-item h2 {
+            margin: 0 0 10px;
+            font-size: 1.5em;
+            color: #00e5ff;
+        }
+        
+        .value {
+            font-size: 1.2em;
+        }
+        
+        .speedometer {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(#00e5ff 0%, #00e5ff var(--percentage), #222 var(--percentage), #222 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+        }
+        
+        .speedometer::after {
+            content: '';
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            background: #000;
+            border-radius: 50%;
+        }
+        
+        .speedometer p {
+            position: relative;
+            font-size: 1.5em;
+            color: #00e5ff;
+            z-index: 1;
+        }
+        
+        canvas {
+            background: #222;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="home.html">Home</a></li>
+            <li><a href="bmp.html">BMP Readings</a></li>
+            <li><a href="dht.html">DHT Readings</a></li>
+            <li><a href="#">Alerts</a></li>
+            <li><a href="airquality.html">Air Quality Readings</a></li>
+        </ul>
+    </nav>
+    <div class="data-head">DHT Sensor Realtime Readings</div>
+    <div class="data-container">
+        <div class="data-item">
+            <h2>Temperature</h2>
+            <canvas id="temperatureChart" width="400" height="200"></canvas>
+        </div>
+        <div class="data-item">
+            <h2>Humidity</h2>
+            <div class="speedometer" id="humidity-speedometer">
+                <p id="humidity"></p>
+            </div>
+        </div>
+    </div>
+    <br>
+    <div class="data-head">Air quality measurements</div>
+    <div class="data-container">
+        <div class="data-item">
+            <h2>Ammonia</h2>
+            <canvas id="ammoniaChart" width="400" height="200"></canvas>
+        </div>
+        <div class="data-item">
+            <h2>Air quality index</h2>
+            <canvas id="airquality" width="400" height="200"></canvas>
+        </div>
+    </div>
+    <div class="data-head">Bmp real time data</div>
+    <div class="data-container">
+        <div class="data-item">
+            <h2>Pressure</h2>
+            <canvas id="pressureChart" width="400" height="200"></canvas>
+        </div>
+        <div class="data-item">
+            <h2>Altitude</h2>
+            <div id="altitude"></div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        // Your web app's Firebase configuration
+        // REPLACE WITH ENVIRONMENT VARIABLES
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        var database = firebase.database();
+
+        // References to database paths
+        var dataRef1 = database.ref('DHT/humidity');
+        var dataRef2 = database.ref('DHT/temperature');
+        var dataref3 = database.ref('mq135/air_quality');
+        var dataref4 = database.ref('Bmp/pressure');
+        var dataref5 = database.ref('BMP/altitude');
+
+        // Fetch the data for humidity
+        dataRef1.on('value', function(getdata1){
+            var humi = getdata1.val();
+            document.getElementById('humidity').innerHTML = humi + "%";
+            document.getElementById('humidity-speedometer').style.setProperty('--percentage', humi + '%');
+        });
+
+        // Fetch the data for temperature and update the chart
+        const temperatureData = [];
+        const labels = [];
+
+        const ctx = document.getElementById('temperatureChart').getContext('2d');
+        const temperatureChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Temperature',
+                    data: temperatureData,
+                    fill: false,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        dataRef2.on('value', function(getdata2){
+            const newData = getdata2.val();
+            if (temperatureData.length >= 20) {
+                temperatureData.shift(); // Remove the oldest data point
+                labels.shift();
+            }
+            temperatureData.push(newData);
+            const currentTime = new Date().toLocaleTimeString();
+            labels.push(currentTime);
+            temperatureChart.update();
+        });
+
+        // Fetch the data for pressure and update the chart
+        const pressureData = [];
+        const pressureLabels = [];
+
+        const ctx2 = document.getElementById('pressureChart').getContext('2d');
+        const pressureChart = new Chart(ctx2, {
+            type: 'line',
+            data: {
+                labels: pressureLabels,
+                datasets: [{
+                    label: 'Pressure',
+                    data: pressureData,
+                    fill: false,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        dataref4.on('value', function(getdata3){
+            const newPressureData = getdata3.val();
+            if (pressureData.length >= 20) {
+                pressureData.shift(); // Remove the oldest data point
+                pressureLabels.shift();
+            }
+            pressureData.push(newPressureData);
+            const currentTime = new Date().toLocaleTimeString();
+            pressureLabels.push(currentTime);
+            pressureChart.update();
+        });
+
+        // Fetch the data for altitude
+        dataref5.on('value', function(getdata4){
+            const altitudeData = getdata4.val();
+            document.getElementById('altitude').innerHTML = altitudeData + " m";
+        });
+    </script>
+</body>
+</html>
